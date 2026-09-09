@@ -13,7 +13,7 @@ public class HomeController {
 
     @GetMapping("/")
     public String home(Model model) {
-        model.addAttribute("appName", "Social Web Foundation");
+        model.addAttribute("appName", "Project 28");
         return "index"; // resolves to src/main/resources/templates/index.html
     }
 }
