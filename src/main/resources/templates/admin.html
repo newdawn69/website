@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <title>Admin Dashboard</title>
+</head>
+<body>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="container" style="max-width: 480px; margin-top: 50px; margin-bottom: 50px;">
+        <h1>Admin dashboard</h1>
+        <p class="text-muted">Logged in as <strong th:text="${user.username}"></strong> (<span th:text="${user.role}"></span>)</p>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h5 class="card-title">Total registered users</h5>
+                <p class="display-6" th:text="${totalUsers}">0</p>
+            </div>
+        </div>
+
+        <p class="text-muted small mt-3">Only accounts with the ADMIN role can reach this page — enforced in SecurityConfig.</p>
+    </main>
+
+    <div th:replace="~{fragments/layout :: footer}"></div>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

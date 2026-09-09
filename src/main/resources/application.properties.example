@@ -1,0 +1,28 @@
+spring.application.name=social-web-foundation
+
+# Server
+server.port=8080
+
+# MySQL database
+# 1) Make sure MySQL is installed and running locally
+# 2) Create the database once with: CREATE DATABASE socialdb;
+# 3) Update username/password below to match your local MySQL setup
+spring.datasource.url=jdbc:mysql://localhost:3306/socialdb?createDatabaseIfNotExist=true
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.username=root
+spring.datasource.password=YOUR_MYSQL_PASSWORD_HERE
+
+# JPA / Hibernate
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# Email (Gmail SMTP) - for sending password reset links and 2FA codes
+# Replace with your own Gmail address and a 16-character App Password
+# generated at myaccount.google.com/apppasswords (NOT your normal Gmail password)
+spring.mail.host=smtp.gmail.com
+spring.mail.port=587
+spring.mail.username=YOUR_GMAIL_ADDRESS_HERE
+spring.mail.password=YOUR_16_CHAR_APP_PASSWORD_HERE
+spring.mail.properties.mail.smtp.auth=true
+spring.mail.properties.mail.smtp.starttls.enable=true

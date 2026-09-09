@@ -1,0 +1,22 @@
+src/main/java - Backend
+
+src/main/resources - Frontend
+
+database,
+src/main/resources/application.properties     ← connection settings (URL, username, password)
+src/main/java/model/User.java                 ← defines what a "User" looks like (becomes a table)
+src/main/java/repository/UserRepository.java  ← code that talks to the database
+
+
+
+myscl root password- Newdawn@2026
+
+
+cmd - mvn spring-boot:run
+
+
+http://localhost:8080
+http://localhost:8080/register 
+http://localhost:8080/login 
+http://localhost:8080/profile
+

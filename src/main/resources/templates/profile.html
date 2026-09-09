@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <title>Profile</title>
+</head>
+<body>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="container" style="max-width: 480px; margin-top: 50px; margin-bottom: 50px;">
+        <h1>Welcome, <span th:text="${user.username}">user</span></h1>
+        <span class="badge bg-secondary mb-3" th:text="${user.role}">ROLE</span>
+
+        <table class="table mt-3">
+            <tr>
+                <th>Email</th>
+                <td th:text="${user.email}"></td>
+            </tr>
+            <tr th:if="${user.backupEmail}">
+                <th>Backup email</th>
+                <td th:text="${user.backupEmail}"></td>
+            </tr>
+            <tr th:if="${user.phoneNumber}">
+                <th>Phone</th>
+                <td th:text="${user.phoneNumber}"></td>
+            </tr>
+        </table>
+
+        <p class="text-muted small">This page loads only because Spring Security confirmed you're logged in.</p>
+    </main>
+
+    <div th:replace="~{fragments/layout :: footer}"></div>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <title>Register</title>
+</head>
+<body>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+
+    <main class="container" style="max-width: 480px; margin-top: 50px; margin-bottom: 50px;">
+        <h1 class="mb-4">Create an account</h1>
+
+        <form th:action="@{/register}" th:object="${user}" method="post" novalidate>
+
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-control" th:field="*{username}">
+                <div class="text-danger small" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" th:field="*{email}">
+                <div class="text-danger small" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Backup email <span class="text-muted">(optional)</span></label>
+                <input type="email" class="form-control" th:field="*{backupEmail}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Phone number <span class="text-muted">(optional)</span></label>
+                <input type="tel" class="form-control" th:field="*{phoneNumber}">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Password</label>
+                <div class="input-group">
+                    <input type="password" id="password" class="form-control" th:field="*{password}">
+                    <button type="button" class="btn btn-outline-secondary toggle-password" data-target="password">Show</button>
+                </div>
+                <div id="password-strength-hint" class="form-text text-muted">At least 8 characters, one uppercase letter, one number</div>
+                <div class="text-danger small" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Confirm password</label>
+                <div class="input-group">
+                    <input type="password" id="confirmPassword" class="form-control" th:field="*{confirmPassword}">
+                    <button type="button" class="btn btn-outline-secondary toggle-password" data-target="confirmPassword">Show</button>
+                </div>
+                <div id="password-match-hint" class="form-text"></div>
+                <div class="text-danger small" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label d-block">Account type</label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" th:field="*{accountType}" value="USER" id="typeUser">
+                    <label class="form-check-label" for="typeUser">Regular user</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" th:field="*{accountType}" value="ADMIN" id="typeAdmin">
+                    <label class="form-check-label" for="typeAdmin">Admin</label>
+                </div>
+                <div class="form-text">For this coursework demo, admin accounts can self-register. In a real system, admin access would be granted separately, not chosen at signup.</div>
+            </div>
+
+            <button type="submit" class="btn btn-dark w-100">Register</button>
+        </form>
+
+        <p class="mt-3">Already have an account? <a th:href="@{/login}">Log in</a></p>
+    </main>
+
+    <div th:replace="~{fragments/layout :: footer}"></div>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
