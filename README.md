@@ -1,6 +1,7 @@
 cmd : mvn spring-boot:run
 
 src/main/java - Backend
+
 src/main/resources - Frontend
 
 database,
