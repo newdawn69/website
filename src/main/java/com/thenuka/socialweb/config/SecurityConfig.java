@@ -31,6 +31,7 @@ public class SecurityConfig {
                         "/", "/register", "/login",
                         "/forgot-password", "/reset-password",
                         "/verify-2fa", "/resend-2fa-code",
+                        "/settings",
                         "/css/**", "/js/**", "/api/health", "/h2-console/**"
                 ).permitAll()
                 // Admin-only area - polymorphism decides who lands here, this just enforces it

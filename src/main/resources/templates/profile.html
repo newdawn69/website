@@ -1,62 +1,90 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout :: head}">
-    <title>Profile</title>
+    <title>User Management</title>
 </head>
 <body>
     <div th:replace="~{fragments/layout :: navbar}"></div>
     <div th:replace="~{fragments/layout :: sidebar}"></div>
 
-    <main class="container" style="max-width: 480px; margin-top: 50px; margin-bottom: 50px;">
+    <main class="container" style="max-width: 520px; margin-top: 50px; margin-bottom: 50px;">
 
         <div class="alert alert-danger" th:if="${avatarError}" th:text="${avatarError}"></div>
+        <div class="alert alert-success" th:if="${param.passwordChanged}" th:text="#{profile.passwordChanged}"></div>
 
-        <div class="d-flex align-items-center gap-3 mb-3">
-            <img th:if="${user.avatarFilename}"
-                 th:src="@{'/uploads/avatars/' + ${user.avatarFilename}}"
-                 alt="Profile picture"
-                 class="rounded-circle"
-                 style="width: 80px; height: 80px; object-fit: cover;">
-            <div th:unless="${user.avatarFilename}"
-                 class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
-                 style="width: 80px; height: 80px; font-size: 28px;">
-                <span th:text="${#strings.substring(user.username, 0, 1)}">?</span>
+        <h1 class="mb-4" th:text="#{sidebar.userManagement}">User Management</h1>
+
+        <!-- Avatar row -->
+        <div class="setting-row">
+            <div class="d-flex align-items-center gap-3">
+                <img th:if="${user.avatarFilename}"
+                     th:src="@{'/uploads/avatars/' + ${user.avatarFilename}}"
+                     alt="Profile picture"
+                     class="rounded-circle"
+                     style="width: 56px; height: 56px; object-fit: cover;">
+                <div th:unless="${user.avatarFilename}"
+                     class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
+                     style="width: 56px; height: 56px; font-size: 22px;">
+                    <span th:text="${#strings.substring(user.username, 0, 1)}">?</span>
+                </div>
+                <div>
+                    <div class="setting-label" th:text="${user.username}">username</div>
+                    <div class="setting-hint" th:text="${user.email}">email</div>
+                </div>
             </div>
-
-            <form th:action="@{/profile/avatar}" method="post" enctype="multipart/form-data" class="d-flex align-items-center gap-2">
-                <input type="file" name="avatar" accept="image/png, image/jpeg, image/webp" class="form-control form-control-sm" style="max-width: 220px;">
-                <button type="submit" class="btn btn-sm btn-outline-dark" th:text="#{profile.upload}">Upload</button>
+            <form th:action="@{/profile/avatar}" method="post" enctype="multipart/form-data">
+                <input type="file" id="avatarInput" name="avatar" accept="image/png, image/jpeg, image/webp" class="d-none" onchange="this.form.submit()">
+                <button type="button" class="btn btn-accent" onclick="document.getElementById('avatarInput').click()" th:text="#{profile.changePhoto}">Change photo</button>
             </form>
         </div>
 
-        <h1><span th:text="#{profile.welcome}">Welcome,</span> <span th:text="${user.username}">user</span></h1>
-        <span class="badge bg-secondary mb-3" th:text="${user.role}">ROLE</span>
+        <!-- Edit profile row -->
+        <div class="setting-row">
+            <div>
+                <div class="setting-label" th:text="#{profile.editProfile}">Edit profile</div>
+                <div class="setting-hint" th:text="#{profile.editProfileHint}">Update your username, email, backup email and phone number.</div>
+            </div>
+            <a th:href="@{/profile/edit}" class="btn btn-accent" th:text="#{profile.edit}">Edit</a>
+        </div>
 
-        <table class="table mt-3">
-            <tr>
-                <th th:text="#{profile.email}">Email</th>
-                <td th:text="${user.email}"></td>
-            </tr>
-            <tr th:if="${user.backupEmail}">
-                <th th:text="#{profile.backupEmail}">Backup email</th>
-                <td th:text="${user.backupEmail}"></td>
-            </tr>
-            <tr th:if="${user.phoneNumber}">
-                <th th:text="#{profile.phone}">Phone</th>
-                <td th:text="${user.phoneNumber}"></td>
-            </tr>
-        </table>
+        <!-- Change password row -->
+        <div class="setting-row">
+            <div>
+                <div class="setting-label" th:text="#{profile.changePassword}">Change password</div>
+                <div class="setting-hint" th:text="#{profile.changePasswordHint}">Update your password using your current one.</div>
+            </div>
+            <a th:href="@{/profile/change-password}" class="btn btn-accent" th:text="#{profile.change}">Change</a>
+        </div>
 
-        <p class="text-muted small" th:text="#{profile.note}"></p>
+        <!-- Admin row (only visible to admins) -->
+        <div class="setting-row" sec:authorize="hasRole('ADMIN')" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+            <div>
+                <div class="setting-label" th:text="#{profile.adminDashboard}">Admin dashboard</div>
+                <div class="setting-hint" th:text="#{profile.adminDashboardHint}">View site-wide stats and manage the system.</div>
+            </div>
+            <a th:href="@{/admin}" class="btn btn-accent" th:text="#{profile.open}">Open</a>
+        </div>
 
-        <a th:href="@{/profile/edit}" class="btn btn-outline-dark" th:text="#{profile.editProfile}">Edit profile</a>
+        <!-- Logout row -->
+        <div class="setting-row">
+            <div>
+                <div class="setting-label" th:text="#{profile.logout}">Logout</div>
+                <div class="setting-hint" th:text="#{profile.logoutHint}">Sign out of your account on this device.</div>
+            </div>
+            <a th:href="@{/logout}" class="btn btn-outline-secondary rounded-pill px-3" th:text="#{profile.logout}">Logout</a>
+        </div>
 
-        <hr class="my-4">
+        <!-- Delete account row -->
+        <div class="setting-row border border-danger-subtle">
+            <div>
+                <div class="setting-label text-danger" th:text="#{profile.deleteAccount}">Delete my account</div>
+                <div class="setting-hint" th:text="#{profile.deleteAccountHint}">This permanently deletes your account and cannot be undone.</div>
+            </div>
+            <form th:action="@{/profile/delete}" method="post" onsubmit="return confirm('Are you sure? This permanently deletes your account and cannot be undone.');">
+                <button type="submit" class="btn btn-outline-danger rounded-pill px-3" th:text="#{profile.delete}">Delete</button>
+            </form>
+        </div>
 
-        <h5 class="text-danger" th:text="#{profile.dangerZone}">Danger zone</h5>
-        <form th:action="@{/profile/delete}" method="post" onsubmit="return confirm('Are you sure? This permanently deletes your account and cannot be undone.');">
-            <button type="submit" class="btn btn-outline-danger" th:text="#{profile.deleteAccount}">Delete my account</button>
-        </form>
     </main>
 
     <div th:replace="~{fragments/layout :: footer}"></div>

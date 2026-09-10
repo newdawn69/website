@@ -41,37 +41,16 @@
             <h5 class="offcanvas-title" id="appSidebarLabel" th:text="#{sidebar.title}">Menu</h5>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
-        <div class="offcanvas-body d-flex flex-column">
-
-            <h6 class="text-uppercase text-muted small mb-2" th:text="#{sidebar.userManagement}">User Management</h6>
-            <div class="list-group list-group-flush mb-4">
+        <div class="offcanvas-body">
+            <div class="list-group">
                 <span sec:authorize="isAuthenticated()" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-                    <a class="list-group-item list-group-item-action" th:href="@{/profile}" th:text="#{nav.profile}">Profile</a>
-                    <a class="list-group-item list-group-item-action" sec:authorize="hasRole('ADMIN')" th:href="@{/admin}" th:text="#{nav.admin}">Admin</a>
-                    <a class="list-group-item list-group-item-action" th:href="@{/logout}" th:text="#{nav.logout}">Logout</a>
+                    <a class="list-group-item list-group-item-action" th:href="@{/profile}" th:text="#{sidebar.userManagement}">User Management</a>
                 </span>
                 <span sec:authorize="isAnonymous()" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-                    <a class="list-group-item list-group-item-action" th:href="@{/login}" th:text="#{nav.login}">Login</a>
-                    <a class="list-group-item list-group-item-action" th:href="@{/register}" th:text="#{nav.register}">Register</a>
+                    <a class="list-group-item list-group-item-action" th:href="@{/login}" th:text="#{sidebar.userManagement}">User Management</a>
                 </span>
-                <a class="list-group-item list-group-item-action" th:href="@{/}" th:text="#{nav.home}">Home</a>
+                <a class="list-group-item list-group-item-action" th:href="@{/settings}" th:text="#{sidebar.appSettings}">App Settings</a>
             </div>
-
-            <h6 class="text-uppercase text-muted small mb-2" th:text="#{sidebar.appSettings}">App Settings</h6>
-
-            <div class="mb-3">
-                <label class="form-label small d-block" th:text="#{sidebar.theme}">Theme</label>
-                <button id="theme-toggle" type="button" class="btn btn-sm btn-outline-secondary">🌙 Dark mode</button>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label small d-block" th:text="#{sidebar.language}">Language</label>
-                <div class="btn-group btn-group-sm" role="group">
-                    <button type="button" class="btn btn-outline-secondary" onclick="window.location.href = window.location.pathname + '?lang=en'">EN</button>
-                    <button type="button" class="btn btn-outline-secondary" onclick="window.location.href = window.location.pathname + '?lang=si'">සිං</button>
-                </div>
-            </div>
-
         </div>
     </div>
 </div>

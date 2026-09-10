@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head}">
+    <title>App Settings</title>
+</head>
+<body>
+    <div th:replace="~{fragments/layout :: navbar}"></div>
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
+
+    <main class="container" style="max-width: 520px; margin-top: 50px; margin-bottom: 50px;">
+        <h1 class="mb-4" th:text="#{settings.title}">App Settings</h1>
+
+        <div class="setting-row">
+            <div>
+                <div class="setting-label" th:text="#{settings.theme}">Theme</div>
+                <div class="setting-hint" th:text="#{settings.themeHint}">Choose how the site looks.</div>
+            </div>
+            <button id="theme-toggle" type="button" class="btn btn-accent">🌙 Dark mode</button>
+        </div>
+
+        <div class="setting-row">
+            <div>
+                <div class="setting-label" th:text="#{settings.language}">Language</div>
+                <div class="setting-hint" th:text="#{settings.languageHint}">Choose your preferred language.</div>
+            </div>
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-accent" onclick="window.location.href = window.location.pathname + '?lang=en'">English</button>
+                <button type="button" class="btn btn-outline-secondary" onclick="window.location.href = window.location.pathname + '?lang=si'">සිංහල</button>
+            </div>
+        </div>
+
+        <p class="mt-4"><a th:href="@{/}" th:text="#{settings.backHome}">Back to home</a></p>
+    </main>
+
+    <div th:replace="~{fragments/layout :: footer}"></div>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

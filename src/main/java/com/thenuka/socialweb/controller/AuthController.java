@@ -102,6 +102,41 @@ public class AuthController {
         return "profile";
     }
 
+    @GetMapping("/profile/change-password")
+    public String showChangePasswordForm() {
+        return "change-password";
+    }
+
+    @PostMapping("/profile/change-password")
+    public String changePassword(Authentication authentication,
+                                  @RequestParam String currentPassword,
+                                  @RequestParam String newPassword,
+                                  @RequestParam String confirmPassword,
+                                  Model model) {
+
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            model.addAttribute("error", "Current password is incorrect.");
+            return "change-password";
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            model.addAttribute("error", "New passwords do not match.");
+            return "change-password";
+        }
+
+        if (!newPassword.matches("^(?=.*[A-Z])(?=.*[0-9]).{8,}$")) {
+            model.addAttribute("error", "New password must be at least 8 characters and include an uppercase letter and a number.");
+            return "change-password";
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return "redirect:/profile?passwordChanged";
+    }
+
     @GetMapping("/profile/edit")
     public String showEditProfileForm(Authentication authentication, Model model) {
         User user = userRepository.findByUsername(authentication.getName()).orElseThrow();

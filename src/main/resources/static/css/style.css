@@ -1,7 +1,41 @@
-/* Most styling now comes from Bootstrap. This file only holds small
-   additions that Bootstrap doesn't cover - deliberately avoids hardcoded
-   colors so dark mode (data-bs-theme) works correctly everywhere. */
-
 body {
     font-family: -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+/* Reusable settings-style row: label/content on the left, one clear action on the right.
+   Uses Bootstrap's theme-aware background so it looks right in both light and dark mode. */
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px 20px;
+    border-radius: 16px;
+    background-color: var(--bs-tertiary-bg);
+    margin-bottom: 12px;
+}
+
+.setting-row .setting-label {
+    font-weight: 600;
+}
+
+.setting-row .setting-hint {
+    font-size: 0.85rem;
+    color: var(--bs-secondary-color);
+}
+
+/* Accent button used for the primary action in each row */
+.btn-accent {
+    background-color: #5b63f5;
+    border-color: #5b63f5;
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 18px;
+    font-weight: 500;
+}
+
+.btn-accent:hover {
+    background-color: #4750e0;
+    border-color: #4750e0;
+    color: #fff;
 }
