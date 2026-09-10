@@ -11,6 +11,7 @@
 
         <div class="alert alert-success" th:if="${param.registered}">Account created — you can log in now.</div>
         <div class="alert alert-success" th:if="${param.resetSuccess}">Password reset — you can log in with your new password.</div>
+        <div class="alert alert-success" th:if="${param.profileUpdated}">Profile updated — please log in again.</div>
         <div class="alert alert-danger" th:if="${param.error}">Invalid username or password.</div>
         <div class="alert alert-success" th:if="${param.logout}">You've been logged out.</div>
 
