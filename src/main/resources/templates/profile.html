@@ -5,6 +5,7 @@
 </head>
 <body>
     <div th:replace="~{fragments/layout :: navbar}"></div>
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
 
     <main class="container" style="max-width: 480px; margin-top: 50px; margin-bottom: 50px;">
 
@@ -24,37 +25,37 @@
 
             <form th:action="@{/profile/avatar}" method="post" enctype="multipart/form-data" class="d-flex align-items-center gap-2">
                 <input type="file" name="avatar" accept="image/png, image/jpeg, image/webp" class="form-control form-control-sm" style="max-width: 220px;">
-                <button type="submit" class="btn btn-sm btn-outline-dark">Upload</button>
+                <button type="submit" class="btn btn-sm btn-outline-dark" th:text="#{profile.upload}">Upload</button>
             </form>
         </div>
 
-        <h1>Welcome, <span th:text="${user.username}">user</span></h1>
+        <h1><span th:text="#{profile.welcome}">Welcome,</span> <span th:text="${user.username}">user</span></h1>
         <span class="badge bg-secondary mb-3" th:text="${user.role}">ROLE</span>
 
         <table class="table mt-3">
             <tr>
-                <th>Email</th>
+                <th th:text="#{profile.email}">Email</th>
                 <td th:text="${user.email}"></td>
             </tr>
             <tr th:if="${user.backupEmail}">
-                <th>Backup email</th>
+                <th th:text="#{profile.backupEmail}">Backup email</th>
                 <td th:text="${user.backupEmail}"></td>
             </tr>
             <tr th:if="${user.phoneNumber}">
-                <th>Phone</th>
+                <th th:text="#{profile.phone}">Phone</th>
                 <td th:text="${user.phoneNumber}"></td>
             </tr>
         </table>
 
-        <p class="text-muted small">This page loads only because Spring Security confirmed you're logged in.</p>
+        <p class="text-muted small" th:text="#{profile.note}"></p>
 
-        <a th:href="@{/profile/edit}" class="btn btn-outline-dark">Edit profile</a>
+        <a th:href="@{/profile/edit}" class="btn btn-outline-dark" th:text="#{profile.editProfile}">Edit profile</a>
 
         <hr class="my-4">
 
-        <h5 class="text-danger">Danger zone</h5>
+        <h5 class="text-danger" th:text="#{profile.dangerZone}">Danger zone</h5>
         <form th:action="@{/profile/delete}" method="post" onsubmit="return confirm('Are you sure? This permanently deletes your account and cannot be undone.');">
-            <button type="submit" class="btn btn-outline-danger">Delete my account</button>
+            <button type="submit" class="btn btn-outline-danger" th:text="#{profile.deleteAccount}">Delete my account</button>
         </form>
     </main>
 
