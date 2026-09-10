@@ -1,3 +1,24 @@
+// Dark mode toggle - persists choice in localStorage so it survives page navigation/reloads
+document.addEventListener('DOMContentLoaded', function () {
+    const toggleButton = document.getElementById('theme-toggle');
+    if (!toggleButton) return;
+
+    function updateButtonLabel() {
+        const current = document.documentElement.getAttribute('data-bs-theme');
+        toggleButton.textContent = current === 'dark' ? '☀️ Light mode' : '🌙 Dark mode';
+    }
+
+    updateButtonLabel();
+
+    toggleButton.addEventListener('click', function () {
+        const current = document.documentElement.getAttribute('data-bs-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-bs-theme', next);
+        localStorage.setItem('theme', next);
+        updateButtonLabel();
+    });
+});
+
 // Toggles a password field between hidden and visible when its "eye" button is clicked
 document.addEventListener('click', function (e) {
     if (e.target.matches('.toggle-password')) {

@@ -5,19 +5,20 @@
 </head>
 <body>
     <div th:replace="~{fragments/layout :: navbar}"></div>
+    <div th:replace="~{fragments/layout :: sidebar}"></div>
 
     <main class="container" style="max-width: 480px; margin-top: 50px; margin-bottom: 50px;">
-        <h1>Admin dashboard</h1>
-        <p class="text-muted">Logged in as <strong th:text="${user.username}"></strong> (<span th:text="${user.role}"></span>)</p>
+        <h1 th:text="#{admin.title}">Admin dashboard</h1>
+        <p class="text-muted"><span th:text="#{admin.loggedInAs}">Logged in as</span> <strong th:text="${user.username}"></strong> (<span th:text="${user.role}"></span>)</p>
 
         <div class="card mt-4">
             <div class="card-body">
-                <h5 class="card-title">Total registered users</h5>
+                <h5 class="card-title" th:text="#{admin.totalUsers}">Total registered users</h5>
                 <p class="display-6" th:text="${totalUsers}">0</p>
             </div>
         </div>
 
-        <p class="text-muted small mt-3">Only accounts with the ADMIN role can reach this page — enforced in SecurityConfig.</p>
+        <p class="text-muted small mt-3" th:text="#{admin.note}"></p>
     </main>
 
     <div th:replace="~{fragments/layout :: footer}"></div>
