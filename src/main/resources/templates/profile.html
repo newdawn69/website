@@ -7,6 +7,27 @@
     <div th:replace="~{fragments/layout :: navbar}"></div>
 
     <main class="container" style="max-width: 480px; margin-top: 50px; margin-bottom: 50px;">
+
+        <div class="alert alert-danger" th:if="${avatarError}" th:text="${avatarError}"></div>
+
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <img th:if="${user.avatarFilename}"
+                 th:src="@{'/uploads/avatars/' + ${user.avatarFilename}}"
+                 alt="Profile picture"
+                 class="rounded-circle"
+                 style="width: 80px; height: 80px; object-fit: cover;">
+            <div th:unless="${user.avatarFilename}"
+                 class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white"
+                 style="width: 80px; height: 80px; font-size: 28px;">
+                <span th:text="${#strings.substring(user.username, 0, 1)}">?</span>
+            </div>
+
+            <form th:action="@{/profile/avatar}" method="post" enctype="multipart/form-data" class="d-flex align-items-center gap-2">
+                <input type="file" name="avatar" accept="image/png, image/jpeg, image/webp" class="form-control form-control-sm" style="max-width: 220px;">
+                <button type="submit" class="btn btn-sm btn-outline-dark">Upload</button>
+            </form>
+        </div>
+
         <h1>Welcome, <span th:text="${user.username}">user</span></h1>
         <span class="badge bg-secondary mb-3" th:text="${user.role}">ROLE</span>
 
@@ -26,6 +47,15 @@
         </table>
 
         <p class="text-muted small">This page loads only because Spring Security confirmed you're logged in.</p>
+
+        <a th:href="@{/profile/edit}" class="btn btn-outline-dark">Edit profile</a>
+
+        <hr class="my-4">
+
+        <h5 class="text-danger">Danger zone</h5>
+        <form th:action="@{/profile/delete}" method="post" onsubmit="return confirm('Are you sure? This permanently deletes your account and cannot be undone.');">
+            <button type="submit" class="btn btn-outline-danger">Delete my account</button>
+        </form>
     </main>
 
     <div th:replace="~{fragments/layout :: footer}"></div>

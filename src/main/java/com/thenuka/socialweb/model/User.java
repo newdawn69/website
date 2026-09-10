@@ -62,6 +62,10 @@ public abstract class User {
     @Column
     private LocalDateTime twoFaCodeExpiry;
 
+    // --- Profile picture ---
+    @Column
+    private String avatarFilename; // just the filename - actual file lives in /uploads/avatars/
+
     protected User() {
         // required by JPA
     }
@@ -157,5 +161,13 @@ public abstract class User {
 
     public void setTwoFaCodeExpiry(LocalDateTime twoFaCodeExpiry) {
         this.twoFaCodeExpiry = twoFaCodeExpiry;
+    }
+
+    public String getAvatarFilename() {
+        return avatarFilename;
+    }
+
+    public void setAvatarFilename(String avatarFilename) {
+        this.avatarFilename = avatarFilename;
     }
 }

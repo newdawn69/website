@@ -10,7 +10,13 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import com.thenuka.socialweb.service.AvatarStorageService;
+import java.io.IOException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,11 +35,14 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final AvatarStorageService avatarStorageService;
 
-    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService) {
+    public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                           EmailService emailService, AvatarStorageService avatarStorageService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
+        this.avatarStorageService = avatarStorageService;
     }
 
     // ---------- Registration ----------
@@ -91,6 +100,91 @@ public class AuthController {
         User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
         model.addAttribute("user", user);
         return "profile";
+    }
+
+    @GetMapping("/profile/edit")
+    public String showEditProfileForm(Authentication authentication, Model model) {
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+
+        EditProfileRequest form = new EditProfileRequest();
+        form.setUsername(user.getUsername());
+        form.setEmail(user.getEmail());
+        form.setBackupEmail(user.getBackupEmail());
+        form.setPhoneNumber(user.getPhoneNumber());
+
+        model.addAttribute("form", form);
+        return "edit-profile";
+    }
+
+    @PostMapping("/profile/edit")
+    public String updateProfile(Authentication authentication,
+                                 @Valid @ModelAttribute("form") EditProfileRequest form,
+                                 BindingResult result,
+                                 Model model) {
+
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+
+        // Only flag "taken" if it belongs to a DIFFERENT user
+        userRepository.findByUsername(form.getUsername()).ifPresent(existing -> {
+            if (!existing.getId().equals(user.getId())) {
+                result.rejectValue("username", "error.user", "Username already taken");
+            }
+        });
+        userRepository.findByEmail(form.getEmail()).ifPresent(existing -> {
+            if (!existing.getId().equals(user.getId())) {
+                result.rejectValue("email", "error.user", "Email already registered");
+            }
+        });
+
+        if (result.hasErrors()) {
+            return "edit-profile";
+        }
+
+        user.setUsername(form.getUsername());
+        user.setEmail(form.getEmail());
+        user.setBackupEmail(form.getBackupEmail());
+        user.setPhoneNumber(form.getPhoneNumber());
+        userRepository.save(user);
+
+        // Username may have changed, which invalidates the current login session -
+        // safest to log the user out and have them log back in with the new username.
+        SecurityContextHolder.clearContext();
+        return "redirect:/login?profileUpdated";
+    }
+
+    @PostMapping("/profile/avatar")
+    public String uploadAvatar(Authentication authentication,
+                                @RequestParam("avatar") MultipartFile avatar,
+                                RedirectAttributes redirectAttributes) {
+
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+
+        try {
+            String newFilename = avatarStorageService.store(avatar);
+
+            // Clean up the old picture so we don't accumulate orphaned files on disk
+            avatarStorageService.delete(user.getAvatarFilename());
+
+            user.setAvatarFilename(newFilename);
+            userRepository.save(user);
+        } catch (IllegalArgumentException | IOException e) {
+            redirectAttributes.addFlashAttribute("avatarError", e.getMessage());
+        }
+
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/profile/delete")
+    public String deleteAccount(Authentication authentication, HttpServletRequest request) {
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+
+        avatarStorageService.delete(user.getAvatarFilename());
+        userRepository.delete(user);
+
+        SecurityContextHolder.clearContext();
+        request.getSession().invalidate();
+
+        return "redirect:/?accountDeleted";
     }
 
     @GetMapping("/admin")
@@ -172,6 +266,32 @@ public class AuthController {
         userRepository.save(user);
 
         return "redirect:/login?resetSuccess";
+    }
+
+    /** Form-backing object for editing profile details (no password here - that goes through reset-password). */
+    public static class EditProfileRequest {
+
+        @NotBlank
+        private String username;
+
+        @NotBlank
+        @Email
+        private String email;
+
+        private String backupEmail;
+        private String phoneNumber;
+
+        public String getUsername() { return username; }
+        public void setUsername(String username) { this.username = username; }
+
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+
+        public String getBackupEmail() { return backupEmail; }
+        public void setBackupEmail(String backupEmail) { this.backupEmail = backupEmail; }
+
+        public String getPhoneNumber() { return phoneNumber; }
+        public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
     }
 
     /** Form-backing object for the registration page. */

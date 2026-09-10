@@ -1,6 +1,16 @@
+# Build output
 target/
+
+# IntelliJ
 .idea/
 *.iml
+
+# OS files
 .DS_Store
 Thumbs.db
+
+# Contains real database and email credentials - never commit this
 src/main/resources/application.properties
+
+# User-uploaded files - runtime data, not source code
+uploads/

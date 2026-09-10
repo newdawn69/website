@@ -17,6 +17,10 @@ spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 
+# File uploads (profile avatars)
+spring.servlet.multipart.max-file-size=2MB
+spring.servlet.multipart.max-request-size=2MB
+
 # Email (Gmail SMTP) - for sending password reset links and 2FA codes
 # Replace with your own Gmail address and a 16-character App Password
 # generated at myaccount.google.com/apppasswords (NOT your normal Gmail password)
