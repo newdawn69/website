@@ -48,6 +48,9 @@ public abstract class User {
     @Column
     private String phoneNumber; // optional
 
+    @Column
+    private String gender; // "MALE" or "FEMALE", optional
+
     // --- Password reset support ---
     @Column
     private String resetToken;
@@ -129,6 +132,14 @@ public abstract class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public String getResetToken() {

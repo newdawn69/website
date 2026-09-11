@@ -5,7 +5,9 @@ import com.thenuka.socialweb.repository.UserRepository;
 import com.thenuka.socialweb.service.EmailService;
 import com.thenuka.socialweb.service.UserDetailsServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,13 +29,15 @@ public class TwoFactorController {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final UserDetailsServiceImpl userDetailsService;
+    private final RememberMeServices rememberMeServices;
     private final SecureRandom random = new SecureRandom();
 
     public TwoFactorController(UserRepository userRepository, EmailService emailService,
-                                UserDetailsServiceImpl userDetailsService) {
+                                UserDetailsServiceImpl userDetailsService, RememberMeServices rememberMeServices) {
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.userDetailsService = userDetailsService;
+        this.rememberMeServices = rememberMeServices;
     }
 
     @GetMapping("/verify-2fa")
@@ -47,6 +51,7 @@ public class TwoFactorController {
     @PostMapping("/verify-2fa")
     public String verifyCode(@RequestParam String code,
                               HttpServletRequest request,
+                              HttpServletResponse response,
                               HttpSession session,
                               Model model) {
 
@@ -83,7 +88,15 @@ public class TwoFactorController {
         // Persist the now-real login into the session
         request.getSession().setAttribute(
                 HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+
+        // Now that they're genuinely logged in, honour "Remember me" if it was checked
+        Boolean rememberMeRequested = (Boolean) session.getAttribute("REMEMBER_ME_REQUESTED");
+        if (Boolean.TRUE.equals(rememberMeRequested)) {
+            rememberMeServices.loginSuccess(request, response, authToken);
+        }
+
         session.removeAttribute("PENDING_2FA_USER");
+        session.removeAttribute("REMEMBER_ME_REQUESTED");
 
         return "redirect:" + user.getDashboardPath();
     }

@@ -7,7 +7,7 @@
     <div th:replace="~{fragments/layout :: navbar}"></div>
     <div th:replace="~{fragments/layout :: sidebar}"></div>
 
-    <main class="container" style="max-width: 520px; margin-top: 50px; margin-bottom: 50px;">
+    <main class="container" style="max-width: 600px; margin-top: 50px; margin-bottom: 50px;">
         <h1 class="mb-4" th:text="#{editProfile.title}">Edit profile</h1>
 
         <form th:action="@{/profile/edit}" th:object="${form}" method="post">
@@ -32,6 +32,18 @@
             <div class="setting-row d-block">
                 <label class="setting-label d-block mb-2"><span th:text="#{editProfile.phone}">Phone number</span> <span class="setting-hint" th:text="#{register.optional}">(optional)</span></label>
                 <input type="tel" class="form-control" th:field="*{phoneNumber}">
+            </div>
+
+            <div class="setting-row d-block">
+                <label class="setting-label d-block mb-2"><span th:text="#{editProfile.gender}">Gender</span> <span class="setting-hint" th:text="#{register.optional}">(optional)</span></label>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" th:field="*{gender}" value="MALE" id="genderMale">
+                    <label class="form-check-label" for="genderMale" th:text="#{editProfile.male}">Male</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" th:field="*{gender}" value="FEMALE" id="genderFemale">
+                    <label class="form-check-label" for="genderFemale" th:text="#{editProfile.female}">Female</label>
+                </div>
             </div>
 
             <div class="alert alert-warning small" th:text="#{editProfile.warning}"></div>

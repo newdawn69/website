@@ -7,6 +7,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+import com.thenuka.socialweb.service.UserDetailsServiceImpl;
 import com.thenuka.socialweb.config.TwoFactorAuthenticationSuccessHandler;
 
 @Configuration
@@ -23,7 +26,16 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, TwoFactorAuthenticationSuccessHandler successHandler) throws Exception {
+    public RememberMeServices rememberMeServices(UserDetailsServiceImpl userDetailsService) {
+        TokenBasedRememberMeServices services = new TokenBasedRememberMeServices("project28-remember-key", userDetailsService);
+        services.setTokenValiditySeconds(14 * 24 * 60 * 60); // 14 days
+        services.setParameter("remember-me");
+        return services;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, TwoFactorAuthenticationSuccessHandler successHandler,
+                                            RememberMeServices rememberMeServices) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
                 // Public pages - no login required
@@ -50,8 +62,7 @@ public class SecurityConfig {
                 .permitAll()
             )
             .rememberMe(remember -> remember
-                .key("social-web-foundation-remember-key") // used to sign the remember-me cookie
-                .tokenValiditySeconds(14 * 24 * 60 * 60) // 14 days
+                .rememberMeServices(rememberMeServices)
             )
             // Needed so the H2 console (if used) can render in a frame
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))

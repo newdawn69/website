@@ -8,20 +8,22 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
-    padding: 16px 20px;
+    gap: 20px;
+    padding: 20px 24px;
     border-radius: 16px;
     background-color: var(--bs-tertiary-bg);
-    margin-bottom: 12px;
+    margin-bottom: 14px;
 }
 
 .setting-row .setting-label {
     font-weight: 600;
+    font-size: 1.15rem;
 }
 
 .setting-row .setting-hint {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     color: var(--bs-secondary-color);
+    white-space: nowrap;
 }
 
 /* Accent button used for the primary action in each row */

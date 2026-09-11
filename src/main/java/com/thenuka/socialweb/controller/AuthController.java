@@ -102,6 +102,30 @@ public class AuthController {
         return "profile";
     }
 
+    @GetMapping("/logout-confirm")
+    public String showLogoutConfirm() {
+        return "logout-confirm";
+    }
+
+    @PostMapping("/logout-confirm")
+    public String confirmLogout(Authentication authentication,
+                                 @RequestParam String password,
+                                 HttpServletRequest request,
+                                 Model model) {
+
+        User user = userRepository.findByUsername(authentication.getName()).orElseThrow();
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            model.addAttribute("error", "Incorrect password.");
+            return "logout-confirm";
+        }
+
+        SecurityContextHolder.clearContext();
+        request.getSession().invalidate();
+
+        return "redirect:/login?logout";
+    }
+
     @GetMapping("/profile/change-password")
     public String showChangePasswordForm() {
         return "change-password";
@@ -146,6 +170,7 @@ public class AuthController {
         form.setEmail(user.getEmail());
         form.setBackupEmail(user.getBackupEmail());
         form.setPhoneNumber(user.getPhoneNumber());
+        form.setGender(user.getGender());
 
         model.addAttribute("form", form);
         return "edit-profile";
@@ -179,6 +204,7 @@ public class AuthController {
         user.setEmail(form.getEmail());
         user.setBackupEmail(form.getBackupEmail());
         user.setPhoneNumber(form.getPhoneNumber());
+        user.setGender(form.getGender());
         userRepository.save(user);
 
         // Username may have changed, which invalidates the current login session -
@@ -315,6 +341,7 @@ public class AuthController {
 
         private String backupEmail;
         private String phoneNumber;
+        private String gender;
 
         public String getUsername() { return username; }
         public void setUsername(String username) { this.username = username; }
@@ -327,6 +354,9 @@ public class AuthController {
 
         public String getPhoneNumber() { return phoneNumber; }
         public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
+
+        public String getGender() { return gender; }
+        public void setGender(String gender) { this.gender = gender; }
     }
 
     /** Form-backing object for the registration page. */

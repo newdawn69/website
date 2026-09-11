@@ -7,7 +7,7 @@
     <div th:replace="~{fragments/layout :: navbar}"></div>
     <div th:replace="~{fragments/layout :: sidebar}"></div>
 
-    <main class="container" style="max-width: 520px; margin-top: 50px; margin-bottom: 50px;">
+    <main class="container" style="max-width: 760px; margin-top: 50px; margin-bottom: 50px;">
 
         <div class="alert alert-danger" th:if="${avatarError}" th:text="${avatarError}"></div>
         <div class="alert alert-success" th:if="${param.passwordChanged}" th:text="#{profile.passwordChanged}"></div>
@@ -42,7 +42,7 @@
         <div class="setting-row">
             <div>
                 <div class="setting-label" th:text="#{profile.editProfile}">Edit profile</div>
-                <div class="setting-hint" th:text="#{profile.editProfileHint}">Update your username, email, backup email and phone number.</div>
+                <div class="setting-hint" th:text="#{profile.editProfileHint}">Update your details</div>
             </div>
             <a th:href="@{/profile/edit}" class="btn btn-accent" th:text="#{profile.edit}">Edit</a>
         </div>
@@ -51,7 +51,7 @@
         <div class="setting-row">
             <div>
                 <div class="setting-label" th:text="#{profile.changePassword}">Change password</div>
-                <div class="setting-hint" th:text="#{profile.changePasswordHint}">Update your password using your current one.</div>
+                <div class="setting-hint" th:text="#{profile.changePasswordHint}">Update your password</div>
             </div>
             <a th:href="@{/profile/change-password}" class="btn btn-accent" th:text="#{profile.change}">Change</a>
         </div>
@@ -60,7 +60,7 @@
         <div class="setting-row" sec:authorize="hasRole('ADMIN')" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
             <div>
                 <div class="setting-label" th:text="#{profile.adminDashboard}">Admin dashboard</div>
-                <div class="setting-hint" th:text="#{profile.adminDashboardHint}">View site-wide stats and manage the system.</div>
+                <div class="setting-hint" th:text="#{profile.adminDashboardHint}">View site stats</div>
             </div>
             <a th:href="@{/admin}" class="btn btn-accent" th:text="#{profile.open}">Open</a>
         </div>
@@ -69,19 +69,19 @@
         <div class="setting-row">
             <div>
                 <div class="setting-label" th:text="#{profile.logout}">Logout</div>
-                <div class="setting-hint" th:text="#{profile.logoutHint}">Sign out of your account on this device.</div>
+                <div class="setting-hint" th:text="#{profile.logoutHint}">Sign out of this device</div>
             </div>
-            <a th:href="@{/logout}" class="btn btn-outline-secondary rounded-pill px-3" th:text="#{profile.logout}">Logout</a>
+            <a th:href="@{/logout-confirm}" class="btn btn-accent" th:text="#{profile.logout}">Logout</a>
         </div>
 
         <!-- Delete account row -->
         <div class="setting-row border border-danger-subtle">
             <div>
                 <div class="setting-label text-danger" th:text="#{profile.deleteAccount}">Delete my account</div>
-                <div class="setting-hint" th:text="#{profile.deleteAccountHint}">This permanently deletes your account and cannot be undone.</div>
+                <div class="setting-hint" th:text="#{profile.deleteAccountHint}">Cannot be undone</div>
             </div>
             <form th:action="@{/profile/delete}" method="post" onsubmit="return confirm('Are you sure? This permanently deletes your account and cannot be undone.');">
-                <button type="submit" class="btn btn-outline-danger rounded-pill px-3" th:text="#{profile.delete}">Delete</button>
+                <button type="submit" class="btn btn-accent" th:text="#{profile.delete}">Delete</button>
             </form>
         </div>
 
