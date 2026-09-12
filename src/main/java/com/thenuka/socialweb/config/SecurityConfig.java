@@ -43,6 +43,7 @@ public class SecurityConfig {
                         "/", "/register", "/login",
                         "/forgot-password", "/reset-password",
                         "/verify-2fa", "/resend-2fa-code",
+                        "/verify-backup-code",
                         "/settings",
                         "/css/**", "/js/**", "/api/health", "/h2-console/**"
                 ).permitAll()

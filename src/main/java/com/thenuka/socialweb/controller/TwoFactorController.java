@@ -7,11 +7,12 @@ import com.thenuka.socialweb.service.UserDetailsServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.Iterator;
 
 @Controller
 public class TwoFactorController {
@@ -30,15 +32,20 @@ public class TwoFactorController {
     private final EmailService emailService;
     private final UserDetailsServiceImpl userDetailsService;
     private final RememberMeServices rememberMeServices;
+    private final PasswordEncoder passwordEncoder;
     private final SecureRandom random = new SecureRandom();
 
     public TwoFactorController(UserRepository userRepository, EmailService emailService,
-                                UserDetailsServiceImpl userDetailsService, RememberMeServices rememberMeServices) {
+                                UserDetailsServiceImpl userDetailsService, RememberMeServices rememberMeServices,
+                                PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.emailService = emailService;
         this.userDetailsService = userDetailsService;
         this.rememberMeServices = rememberMeServices;
+        this.passwordEncoder = passwordEncoder;
     }
+
+    // ---------- Email code method ----------
 
     @GetMapping("/verify-2fa")
     public String showVerifyForm(HttpSession session) {
@@ -72,33 +79,11 @@ public class TwoFactorController {
             return "verify-2fa";
         }
 
-        // Code is correct - clear it so it can't be reused, then actually log the user in
         user.setTwoFaCode(null);
         user.setTwoFaCodeExpiry(null);
         userRepository.save(user);
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
-        UsernamePasswordAuthenticationToken authToken =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authToken);
-        SecurityContextHolder.setContext(context);
-
-        // Persist the now-real login into the session
-        request.getSession().setAttribute(
-                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
-
-        // Now that they're genuinely logged in, honour "Remember me" if it was checked
-        Boolean rememberMeRequested = (Boolean) session.getAttribute("REMEMBER_ME_REQUESTED");
-        if (Boolean.TRUE.equals(rememberMeRequested)) {
-            rememberMeServices.loginSuccess(request, response, authToken);
-        }
-
-        session.removeAttribute("PENDING_2FA_USER");
-        session.removeAttribute("REMEMBER_ME_REQUESTED");
-
-        return "redirect:" + user.getDashboardPath();
+        return completeLogin(user, request, response, session);
     }
 
     @PostMapping("/resend-2fa-code")
@@ -115,9 +100,81 @@ public class TwoFactorController {
         user.setTwoFaCodeExpiry(LocalDateTime.now().plusMinutes(10));
         userRepository.save(user);
 
-        emailService.sendTwoFactorCode(user.getEmail(), code);
+        emailService.sendTwoFactorCode(user.getEffectiveTwoFaEmail(), code);
 
         redirectAttributes.addFlashAttribute("resent", true);
         return "redirect:/verify-2fa";
+    }
+
+    // ---------- Backup code method ----------
+
+    @GetMapping("/verify-backup-code")
+    public String showVerifyBackupCodeForm(HttpSession session) {
+        if (session.getAttribute("PENDING_2FA_USER") == null) {
+            return "redirect:/login";
+        }
+        return "verify-backup-code";
+    }
+
+    @PostMapping("/verify-backup-code")
+    public String verifyBackupCode(@RequestParam String code,
+                                    HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    HttpSession session,
+                                    Model model) {
+
+        String pendingUsername = (String) session.getAttribute("PENDING_2FA_USER");
+        if (pendingUsername == null) {
+            return "redirect:/login";
+        }
+
+        User user = userRepository.findByUsername(pendingUsername).orElseThrow();
+        String normalizedCode = code.trim().toUpperCase();
+
+        // Find and consume the matching backup code (single-use - remove once used)
+        Iterator<String> it = user.getBackupCodeHashes().iterator();
+        boolean matched = false;
+        while (it.hasNext()) {
+            if (passwordEncoder.matches(normalizedCode, it.next())) {
+                it.remove();
+                matched = true;
+                break;
+            }
+        }
+
+        if (!matched) {
+            model.addAttribute("error", "That backup code is incorrect or has already been used.");
+            return "verify-backup-code";
+        }
+
+        userRepository.save(user);
+
+        return completeLogin(user, request, response, session);
+    }
+
+    // ---------- Shared completion logic ----------
+
+    /** Finalizes the login once whichever verification method used has succeeded. */
+    private String completeLogin(User user, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getUsername());
+        UsernamePasswordAuthenticationToken authToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        context.setAuthentication(authToken);
+        SecurityContextHolder.setContext(context);
+
+        request.getSession().setAttribute(
+                HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, context);
+
+        Boolean rememberMeRequested = (Boolean) session.getAttribute("REMEMBER_ME_REQUESTED");
+        if (Boolean.TRUE.equals(rememberMeRequested)) {
+            rememberMeServices.loginSuccess(request, response, authToken);
+        }
+
+        session.removeAttribute("PENDING_2FA_USER");
+        session.removeAttribute("REMEMBER_ME_REQUESTED");
+
+        return "redirect:" + user.getDashboardPath();
     }
 }

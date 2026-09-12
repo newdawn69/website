@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Abstract base class for all account types.
@@ -59,11 +61,25 @@ public abstract class User {
     private LocalDateTime resetTokenExpiry;
 
     // --- Two-factor authentication support ---
+    @Column(nullable = false)
+    private boolean twoFaEnabled = false; // off by default - user opts in via Settings
+
+    @Column
+    private String twoFaMethod = "EMAIL"; // "EMAIL" or "BACKUP_CODES"
+
+    @Column
+    private String twoFaEmail; // optional - if set, 2FA codes go here instead of the main email
+
     @Column
     private String twoFaCode;
 
     @Column
     private LocalDateTime twoFaCodeExpiry;
+
+    @ElementCollection
+    @CollectionTable(name = "user_backup_codes", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "code_hash")
+    private Set<String> backupCodeHashes = new HashSet<>();
 
     // --- Profile picture ---
     @Column
@@ -172,6 +188,43 @@ public abstract class User {
 
     public void setTwoFaCodeExpiry(LocalDateTime twoFaCodeExpiry) {
         this.twoFaCodeExpiry = twoFaCodeExpiry;
+    }
+
+    public boolean isTwoFaEnabled() {
+        return twoFaEnabled;
+    }
+
+    public void setTwoFaEnabled(boolean twoFaEnabled) {
+        this.twoFaEnabled = twoFaEnabled;
+    }
+
+    public String getTwoFaMethod() {
+        return twoFaMethod;
+    }
+
+    public void setTwoFaMethod(String twoFaMethod) {
+        this.twoFaMethod = twoFaMethod;
+    }
+
+    public String getTwoFaEmail() {
+        return twoFaEmail;
+    }
+
+    public void setTwoFaEmail(String twoFaEmail) {
+        this.twoFaEmail = twoFaEmail;
+    }
+
+    /** The address 2FA codes should actually be sent to - falls back to the main email if none set. */
+    public String getEffectiveTwoFaEmail() {
+        return (twoFaEmail != null && !twoFaEmail.isBlank()) ? twoFaEmail : getEmail();
+    }
+
+    public Set<String> getBackupCodeHashes() {
+        return backupCodeHashes;
+    }
+
+    public void setBackupCodeHashes(Set<String> backupCodeHashes) {
+        this.backupCodeHashes = backupCodeHashes;
     }
 
     public String getAvatarFilename() {
