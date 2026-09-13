@@ -21,17 +21,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Toggles a password field between hidden and visible when its "eye" button is clicked
 document.addEventListener('click', function (e) {
-    if (e.target.matches('.toggle-password')) {
-        const targetId = e.target.getAttribute('data-target');
-        const input = document.getElementById(targetId);
-        if (!input) return;
+    const btn = e.target.closest('.toggle-password');
+    if (!btn) return;
 
-        if (input.type === 'password') {
-            input.type = 'text';
-            e.target.textContent = 'Hide';
+    const targetId = btn.getAttribute('data-target');
+    const input = document.getElementById(targetId);
+    if (!input) return;
+
+    const icon = btn.querySelector('i');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (icon) {
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
         } else {
-            input.type = 'password';
-            e.target.textContent = 'Show';
+            btn.textContent = 'Hide';
+        }
+    } else {
+        input.type = 'password';
+        if (icon) {
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        } else {
+            btn.textContent = 'Show';
         }
     }
 });
